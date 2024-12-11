@@ -1,0 +1,75 @@
+#!/bin/bash
+read -p "Введите контактную книгу: " filename
+if [ -f $filename ]
+then
+	echo "Да, такая есть."
+
+
+
+	read -p "Выберите действие: 1) Добавить контакт. 2) Удалить контакт. 3) Найти контакт по имени или номеру телефона. " decision
+	case $decision in
+	1)
+        	add(){
+                	echo "Добавляем новый контакт."
+                	echo "Введите имя."
+                	read name
+                	echo "Введите номер телефона."
+                	read phone_num
+                	echo "Введите email."
+                	read email
+                	new_contact="$name $phone_num $email"
+
+			if grep "$new_contact" "$filename";
+			then
+				echo "Контакт $new_contact уже есть."
+			else
+                		echo "$new_contact" >> "$filename"
+                		echo "Добавлен контакт"
+			fi
+        	}
+        	add
+	;;
+	2)
+	       remove(){
+			echo "Удаляем контакт."
+			echo "Введите имя или номер телефона для удаления контакта."
+			read data
+			if grep -q "$data" "$filename";
+			then
+				grep -v "$data" "$filename" > time_file
+				cat time_file > "$filename"
+				rm time_file
+				echo "Контакт найден и удален."
+			else
+				echo "Нет такого контакта."
+			fi
+	       }
+		remove
+	;;
+	3)
+	       search(){
+			echo "Введите имя, номер или email телефона контакта."
+			read data
+			result=$(grep "$data" "$filename")
+			if [ -n "$result" ]
+			then
+				echo "Есть контакт.Вот он: "
+				echo "$result"
+			else
+				echo "Нет такого контакта."
+				exit 1
+			fi
+	       }
+		search
+	;;
+	*)
+        	echo "Неверная команда. Выберите от 1 до 3"
+	;;
+	esac
+
+
+
+else
+	echo "Такой контактной книги не существует."
+	exit 1
+fi
